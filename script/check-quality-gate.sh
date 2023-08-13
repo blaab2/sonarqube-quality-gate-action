@@ -34,7 +34,7 @@ if [[ -n "${SONAR_ROOT_CERT}" ]]; then
   echo "--cacert /tmp/tmpcert.pem" >> ~/.curlrc
 fi
 
-task="$(curl --location --location-trusted --max-redirs 10  --silent --fail --show-error --user "${SONAR_TOKEN}": "${ceTaskUrl}")"
+task="$(curl --location --location-trusted --max-redirs 10  --ssl-no-revoke  --silent --fail --show-error --user "${SONAR_TOKEN}": "${ceTaskUrl}")"
 status="$(jq -r '.task.status' <<< "$task")"
 
 until [[ ${status} != "PENDING" && ${status} != "IN_PROGRESS" ]]; do
@@ -46,7 +46,7 @@ done
 
 analysisId="$(jq -r '.task.analysisId' <<< "${task}")"
 qualityGateUrl="${serverUrl}/api/qualitygates/project_status?analysisId=${analysisId}"
-qualityGateStatus="$(curl --location --location-trusted --max-redirs 10 --silent --fail --show-error --user "${SONAR_TOKEN}": "${qualityGateUrl}" | jq -r '.projectStatus.status')"
+qualityGateStatus="$(curl --location --location-trusted --max-redirs 10  --ssl-no-revoke  --silent --fail --show-error --user "${SONAR_TOKEN}": "${qualityGateUrl}" | jq -r '.projectStatus.status')"
 
 printf '\n'
 if [[ ${qualityGateStatus} == "OK" ]]; then
